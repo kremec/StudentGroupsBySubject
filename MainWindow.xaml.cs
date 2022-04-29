@@ -11,9 +11,6 @@ using System.Threading.Tasks;
 
 namespace WPF_Test
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -23,6 +20,9 @@ namespace WPF_Test
 
         private async void btnOpenFile_Click(object sender, RoutedEventArgs e)
         {
+            openFilePanel.Visibility = Visibility.Hidden;
+
+            #region EXCEL
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             string file = "";
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -32,16 +32,17 @@ namespace WPF_Test
             {
                 file = openFileDialog.FileName;
             }
-
-            openFilePanel.Visibility = Visibility.Hidden;
+            #endregion
 
             var ep = new ExcelPackage(new FileInfo(file));
             var ws = ep.Workbook.Worksheets["Sheet1"];
 
             MakeTable(ws.Dimension.Columns, ws.Dimension.Rows);
 
-            var groups = new List<List<string>>();
+            #region MAKING LIST
+            // Student groups are sublists of the "groupsDefault" list
 
+            var groupsDefault = new List<List<string>>();
             for (int col = 1; col <= ws.Dimension.End.Column; col++)
             {
                 var column = new List<string>();
@@ -50,50 +51,50 @@ namespace WPF_Test
                     if (ws.Cells[rw, col].Value != null)
                         column.Add(ws.Cells[rw, col].Value.ToString());
                 }
-                groups.Add(column);
+                groupsDefault.Add(column);
             }
-            groups.ToArray();
+            groupsDefault.ToArray();
 
             int smallestGroupSize = 100;
-            foreach (var group in groups)
+            foreach (var group in groupsDefault)
             {
                 if (group.Count < smallestGroupSize) smallestGroupSize = group.Count;
             }
+            #endregion
 
             Random rnd = new Random();
-            int tempr = 0;
-            int r = 0;
-            int c = 0;
-            foreach (var group in groups)
+
+            List<string[]> groupsRandom = new List<string[]>();
+            foreach (var group in groupsDefault)
             {
                 string[] names = group.ToArray();
                 names = names.OrderBy(x => rnd.Next()).ToArray();
+                groupsRandom.Add(names);
+            }
 
-                for (int i = 0; i <= ws.Dimension.Rows; i++)
+            int c = 0;
+            for (int row = 0; row < MyGrid.RowDefinitions.Count; row++)
+            {
+                c = 0;
+                foreach (var group in groupsRandom)
                 {
                     await Task.Delay(500);
-                    if (i >= names.Length)
+                    if (row == smallestGroupSize)
                     {
-                        FillTableCell(r, c, "");
+                        FillTableCell(row, c, "---");
+                    }
+                    else if ((row < smallestGroupSize && row >= group.Length) || (row > smallestGroupSize && row - 1 >= group.Length))
+                    {
+                        FillTableCell(row, c, "");
                     }
                     else
                     {
-                        if (r == smallestGroupSize)
-                        {
-                            FillTableCell(r, c, "---");
-                            r++;
-                            await Task.Delay(500);
-                        }
-                        FillTableCell(r, c, names[i]);
+                        if (row < smallestGroupSize) FillTableCell(row, c, group[row]);
+                        else FillTableCell(row, c, group[row-1]);
                     }
-                    r++;
+                    c++;
                 }
-                tempr = r;
-                r = 0;
-                c++;
             }
-            await Task.Delay(500);
-            FillTableCell(tempr, c, "");
         }
 
         public void MakeTable(int columns, int rows)
@@ -110,16 +111,14 @@ namespace WPF_Test
             }
         }
 
-        public async void FillTableCell(int row, int column, string text)
+        public void FillTableCell(int row, int column, string text)
         {
             TextBox tb = new TextBox();
-            //tb.Visibility = Visibility.Hidden;
-            //tb.Visibility = Visibility.Visible;
             tb.Text = text;
             tb.FontSize = 20;
             if (row % 2 == 0)
             {
-                tb.Background = Brushes.FloralWhite;
+                tb.Background = Brushes.Orange;
             }
             Grid.SetColumn(tb, column);
             Grid.SetRow(tb, row);
