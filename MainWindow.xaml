@@ -8,7 +8,7 @@
         Title="Skupine" Height="450" Width="800">
     <DockPanel Margin="10">
         <WrapPanel Name="openFilePanel" HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="0,0,0,10">
-            <Button Name="btnOpenFile" Click="btnOpenFile_Click">Odpri Excel datoteko</Button>
+            <Button Name="btnOpenFile" Click="btnOpenFile_Click" FontSize="18">Odpri Excel datoteko</Button>
         </WrapPanel>
         <Grid x:Name="MyGrid" />
     </DockPanel>

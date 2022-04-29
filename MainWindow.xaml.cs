@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Linq;
 using System.Windows.Media;
+using System.Threading.Tasks;
 
 namespace WPF_Test
 {
@@ -20,7 +21,7 @@ namespace WPF_Test
             InitializeComponent();
         }
 
-        private void btnOpenFile_Click(object sender, RoutedEventArgs e)
+        private async void btnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             string file = "";
@@ -60,6 +61,7 @@ namespace WPF_Test
             }
 
             Random rnd = new Random();
+            int tempr = 0;
             int r = 0;
             int c = 0;
             foreach (var group in groups)
@@ -67,71 +69,61 @@ namespace WPF_Test
                 string[] names = group.ToArray();
                 names = names.OrderBy(x => rnd.Next()).ToArray();
 
-                foreach (string name in names)
+                for (int i = 0; i <= ws.Dimension.Rows; i++)
                 {
-                    if (c == smallestGroupSize)
+                    await Task.Delay(500);
+                    if (i >= names.Length)
                     {
-                        if (c % 2 == 0)
+                        FillTableCell(r, c, "");
+                    }
+                    else
+                    {
+                        if (r == smallestGroupSize)
                         {
-                            Border br = new Border();
-                            br.Background = Brushes.FloralWhite;
-                            Grid.SetColumn(br, r);
-                            Grid.SetRow(br, c);
-                            MyGrid.Children.Add(br);
+                            FillTableCell(r, c, "---");
+                            r++;
+                            await Task.Delay(500);
                         }
-                        TextBlock txb = new TextBlock();
-                        txb.Text = "---";
-                        Grid.SetColumn(txb, r);
-                        Grid.SetRow(txb, c);
-                        MyGrid.Children.Add(txb);
-                        c++;
+                        FillTableCell(r, c, names[i]);
                     }
-
-                    if (c % 2 == 0)
-                    {
-                        Border br = new Border();
-                        br.Background = Brushes.FloralWhite;
-                        Grid.SetColumn(br, r);
-                        Grid.SetRow(br, c);
-                        MyGrid.Children.Add(br);
-                    }
-                    TextBlock tb = new TextBlock();
-                    tb.Text = name;
-                    Grid.SetColumn(tb, r);
-                    Grid.SetRow(tb, c);
-                    MyGrid.Children.Add(tb);
-
-                    c++;
+                    r++;
                 }
-                c = 0;
-                r++;
+                tempr = r;
+                r = 0;
+                c++;
             }
-
-            //for (int x = 0; x < ws.Dimension.Columns; x++)
-            //{
-            //    for (int y = 0; y < ws.Dimension.Rows; y++)
-            //    {
-            //        TextBox tb = new TextBox();
-            //        tb.Text = "my text for " + x + " " + y;
-            //        Grid.SetColumn(tb, x);
-            //        Grid.SetRow(tb, y);
-            //        MyGrid.Children.Add(tb);
-            //    }
-            //}
+            await Task.Delay(500);
+            FillTableCell(tempr, c, "");
         }
 
         public void MakeTable(int columns, int rows)
         {
             for (int x = 0; x < columns; x++)
+            {
                 MyGrid.ColumnDefinitions.Add(new ColumnDefinition());
-            for (int y = 0; y < rows + 1; y++)
+            }
+            for (int y = 0; y < rows + 2; y++)
             {
                 RowDefinition r = new RowDefinition();
                 r.Height = GridLength.Auto;
                 MyGrid.RowDefinitions.Add(r);
             }
+        }
 
-
+        public async void FillTableCell(int row, int column, string text)
+        {
+            TextBox tb = new TextBox();
+            //tb.Visibility = Visibility.Hidden;
+            //tb.Visibility = Visibility.Visible;
+            tb.Text = text;
+            tb.FontSize = 20;
+            if (row % 2 == 0)
+            {
+                tb.Background = Brushes.FloralWhite;
+            }
+            Grid.SetColumn(tb, column);
+            Grid.SetRow(tb, row);
+            MyGrid.Children.Add(tb);
         }
     }
 }
