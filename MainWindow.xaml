@@ -10,6 +10,8 @@
         <WrapPanel Name="openFilePanel" HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="0,0,0,10">
             <Button Name="btnOpenFile" Click="btnOpenFile_Click" FontSize="18">Odpri Excel datoteko</Button>
         </WrapPanel>
-        <Grid x:Name="MyGrid" />
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid x:Name="MyGrid" />
+        </ScrollViewer>
     </DockPanel>
 </Window>

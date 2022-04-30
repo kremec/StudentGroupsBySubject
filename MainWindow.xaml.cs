@@ -35,7 +35,7 @@ namespace WPF_Test
             #endregion
 
             var ep = new ExcelPackage(new FileInfo(file));
-            var ws = ep.Workbook.Worksheets["Sheet1"];
+            var ws = ep.Workbook.Worksheets[0];
 
             MakeTable(ws.Dimension.Columns, ws.Dimension.Rows);
 
@@ -101,9 +101,11 @@ namespace WPF_Test
         {
             for (int x = 0; x < columns; x++)
             {
-                MyGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                ColumnDefinition column = new ColumnDefinition();
+                column.Width = new GridLength(1, GridUnitType.Star);
+                MyGrid.ColumnDefinitions.Add(column);
             }
-            for (int y = 0; y < rows + 2; y++)
+            for (int y = 0; y < rows + 1; y++)
             {
                 RowDefinition r = new RowDefinition();
                 r.Height = GridLength.Auto;
@@ -114,6 +116,8 @@ namespace WPF_Test
         public void FillTableCell(int row, int column, string text)
         {
             TextBox tb = new TextBox();
+            tb.HorizontalContentAlignment = HorizontalAlignment.Center;
+            tb.VerticalContentAlignment = VerticalAlignment.Center;
             tb.Text = text;
             tb.FontSize = 20;
             if (row % 2 == 0)
