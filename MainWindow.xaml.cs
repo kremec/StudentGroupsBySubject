@@ -34,23 +34,51 @@ namespace WPF_Test
                 file = openFileDialog.FileName;
             }
 
-            var ep = new ExcelPackage(new FileInfo(file));
-            var ws = ep.Workbook.Worksheets[0];
+            var excelFile = new ExcelPackage(new FileInfo(file));
+            var sheet0 = excelFile.Workbook.Worksheets[0];
+            var sheet1 = excelFile.Workbook.Worksheets[1];
             #endregion
 
-            MakeTable(ws.Dimension.Columns, ws.Dimension.Rows);
+            MakeTable(sheet0.Dimension.Columns, sheet0.Dimension.Rows);
+
+            #region MAKING EXCEPTION GROUPS LIST
+            var xGroups = new List<List<string>>();
+            for (int col = 1; col <= sheet1.Dimension.End.Column; col++)
+            {
+                var column = new List<string>();
+                for (int rw = 1; rw <= sheet1.Dimension.End.Row; rw++)
+                {
+                    if (sheet1.Cells[rw, col].Value != null)
+                        column.Add(sheet1.Cells[rw, col].Value.ToString());
+                }
+                xGroups.Add(column);
+            }
+            xGroups.ToArray();
+
+            /*
+            foreach (var group in xGroups)
+            {
+                string output = "";
+                foreach (var name in group)
+                {
+                    output += name + ", ";
+                }
+                MessageBox.Show(output);
+            }
+            */
+            #endregion
 
             #region MAKING LIST
             // Student groups are sublists of the "groupsDefault" list
 
             var groupsDefault = new List<List<string>>();
-            for (int col = 1; col <= ws.Dimension.End.Column; col++)
+            for (int col = 1; col <= sheet0.Dimension.End.Column; col++)
             {
                 var column = new List<string>();
-                for (int rw = 1; rw <= ws.Dimension.End.Row; rw++)
+                for (int rw = 1; rw <= sheet0.Dimension.End.Row; rw++)
                 {
-                    if (ws.Cells[rw, col].Value != null)
-                        column.Add(ws.Cells[rw, col].Value.ToString());
+                    if (sheet0.Cells[rw, col].Value != null)
+                        column.Add(sheet0.Cells[rw, col].Value.ToString());
                 }
                 groupsDefault.Add(column);
             }
@@ -64,14 +92,52 @@ namespace WPF_Test
             #endregion
 
             #region SHUFFLING GROUPS OF NAMES
-            Random rnd = new Random();
-
             List<string[]> groupsRandom = new List<string[]>();
+
+            ShuffleAgain:
+            groupsRandom.Clear();
+            Random rnd = new Random();
             foreach (var group in groupsDefault)
             {
                 string[] names = group.ToArray();
                 names = names.OrderBy(x => rnd.Next()).ToArray();
                 groupsRandom.Add(names);
+            }
+            #endregion
+
+            #region HANDLING EXCEPTIONS
+
+            //Za vsak exception group
+            foreach (var xGroup in xGroups)
+            {
+                string[] tempXGroup = xGroup.ToArray();
+
+                // Za vsako ime v exceptions grupi
+                for (int indexOfExceptionNameInException = 0; indexOfExceptionNameInException < tempXGroup.Length; indexOfExceptionNameInException++)
+                {
+                    //Preverimo, če je exception ime v zmešani grupi
+                    int indexOfExceptionNameInShuffled = -1;
+                    foreach (var group in groupsRandom)
+                    {
+                        if (group.Contains(tempXGroup[indexOfExceptionNameInException]))
+                        {
+                            indexOfExceptionNameInShuffled = Array.IndexOf(group, tempXGroup[indexOfExceptionNameInException]);
+
+                            // Preverimo znotraj ostalih grup s tem indeksom, če je kak exception znotraj iste grupe
+                            foreach (var g in groupsRandom)
+                            {
+                                if (g.Length > indexOfExceptionNameInShuffled && tempXGroup.Contains(g[indexOfExceptionNameInShuffled]) && g[indexOfExceptionNameInShuffled] != tempXGroup[indexOfExceptionNameInException])
+                                {
+                                    //MessageBox.Show("Exception group found in group with " + g[indexOfExceptionNameInShuffled] + " and " + tempXGroup[indexOfExceptionNameInException]);
+
+                                    // Resolvamo exception
+                                    goto ShuffleAgain;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
             #endregion
 
