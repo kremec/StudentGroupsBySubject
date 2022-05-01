@@ -20,6 +20,7 @@ namespace WPF_Test
 
         private async void btnOpenFile_Click(object sender, RoutedEventArgs e)
         {
+            // Disabling the button to open files
             openFilePanel.Visibility = Visibility.Hidden;
 
             #region EXCEL
@@ -32,10 +33,10 @@ namespace WPF_Test
             {
                 file = openFileDialog.FileName;
             }
-            #endregion
 
             var ep = new ExcelPackage(new FileInfo(file));
             var ws = ep.Workbook.Worksheets[0];
+            #endregion
 
             MakeTable(ws.Dimension.Columns, ws.Dimension.Rows);
 
@@ -62,6 +63,7 @@ namespace WPF_Test
             }
             #endregion
 
+            #region SHUFFLING GROUPS OF NAMES
             Random rnd = new Random();
 
             List<string[]> groupsRandom = new List<string[]>();
@@ -71,7 +73,9 @@ namespace WPF_Test
                 names = names.OrderBy(x => rnd.Next()).ToArray();
                 groupsRandom.Add(names);
             }
+            #endregion
 
+            #region FILLING OUT THE GRID
             int c = 0;
             for (int row = 0; row < MyGrid.RowDefinitions.Count; row++)
             {
@@ -95,6 +99,7 @@ namespace WPF_Test
                     c++;
                 }
             }
+            #endregion
         }
 
         public void MakeTable(int columns, int rows)
