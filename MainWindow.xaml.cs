@@ -21,9 +21,12 @@ namespace WPF_Test
         private async void btnOpenFile_Click(object sender, RoutedEventArgs e)
         {
             // Disabling the button to open files
+
             openFilePanel.Visibility = Visibility.Hidden;
 
             #region EXCEL
+            // File dialogue for opening excel file
+
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             string file = "";
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -33,6 +36,10 @@ namespace WPF_Test
             {
                 file = openFileDialog.FileName;
             }
+
+            // Opening excel file
+            // Sheet0 = all students groups
+            // Sheet1 = groups of students not to be placed together
 
             var excelFile = new ExcelPackage(new FileInfo(file));
             var sheet0 = excelFile.Workbook.Worksheets[0];
@@ -92,6 +99,7 @@ namespace WPF_Test
             #endregion
 
             #region SHUFFLING GROUPS OF NAMES
+            // Randomly shuffling students
             List<string[]> groupsRandom = new List<string[]>();
 
             ShuffleAgain:
@@ -106,16 +114,15 @@ namespace WPF_Test
             #endregion
 
             #region HANDLING EXCEPTIONS
-
-            //Za vsak exception group
+            // For each exception group
             foreach (var xGroup in xGroups)
             {
                 string[] tempXGroup = xGroup.ToArray();
 
-                // Za vsako ime v exceptions grupi
+                // For each name in exceptions group
                 for (int indexOfExceptionNameInException = 0; indexOfExceptionNameInException < tempXGroup.Length; indexOfExceptionNameInException++)
                 {
-                    //Preverimo, če je exception ime v zmešani grupi
+                    // Check if exception ime is in shuffled groups
                     int indexOfExceptionNameInShuffled = -1;
                     foreach (var group in groupsRandom)
                     {
@@ -123,14 +130,12 @@ namespace WPF_Test
                         {
                             indexOfExceptionNameInShuffled = Array.IndexOf(group, tempXGroup[indexOfExceptionNameInException]);
 
-                            // Preverimo znotraj ostalih grup s tem indeksom, če je kak exception znotraj iste grupe
+                            // Check within other groups with same index (= same result group), if there is another exception
                             foreach (var g in groupsRandom)
                             {
                                 if (g.Length > indexOfExceptionNameInShuffled && tempXGroup.Contains(g[indexOfExceptionNameInShuffled]) && g[indexOfExceptionNameInShuffled] != tempXGroup[indexOfExceptionNameInException])
                                 {
-                                    //MessageBox.Show("Exception group found in group with " + g[indexOfExceptionNameInShuffled] + " and " + tempXGroup[indexOfExceptionNameInException]);
-
-                                    // Resolvamo exception
+                                    // Resolve exception (currently just shuffling again, works for groups up to 100+ students)
                                     goto ShuffleAgain;
                                 }
                             }
@@ -168,6 +173,7 @@ namespace WPF_Test
             #endregion
         }
 
+        // Create an empty table of proper size
         public void MakeTable(int columns, int rows)
         {
             for (int x = 0; x < columns; x++)
@@ -184,6 +190,7 @@ namespace WPF_Test
             }
         }
 
+        // Inserts a texbox in table cell
         public void FillTableCell(int row, int column, string text)
         {
             TextBox tb = new TextBox();
