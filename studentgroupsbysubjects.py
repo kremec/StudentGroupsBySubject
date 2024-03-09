@@ -132,7 +132,6 @@ def save_excel_file():
 def main():
     tkinter = Tk()
     tkinter.withdraw()
-    tkinter.iconbitmap("icon.ico")
     filename = open_excel_file()
     students_sheet, exclusion_sheet = get_excel_data(filename)
     groups = create_groups(students_sheet, exclusion_sheet)
