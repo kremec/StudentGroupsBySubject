@@ -120,7 +120,7 @@ def export_to_excel(groups):
         if (filename.endswith(".xlsx") == False):
             filename += ".xlsx"
         data_frame.to_excel(filename, index=False, header=False, sheet_name=GROUPS)
-        os.system(f"start EXCEL.EXE {filename}")
+        os.system(f"{filename}")
     except Exception as e:
         ctypes.windll.user32.MessageBoxW(0, ERR_SAVING_EXCEL_FILE + f"\n{e}\n\n{ERR_NOTIFY_DEVELOPER}", APP_TITLE, 0)
         exit()
