@@ -14,5 +14,5 @@ The file should be formatted as follows:
 Names of sheets are not important.\
 On both sheets, the first row is not included in the data to be parsed, as it is assumed to be a header row.
 
-The program will then display the second file dialog to save the Excel file with generated student groups, each row representing one team.\
+The program will then display the second file dialog to save the Excel file with generated student groups, each row representing one team, and organized so that each column only represents students of one subject group.\
 The file will be then opened automatically.

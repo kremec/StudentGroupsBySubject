@@ -1,5 +1,6 @@
 from tkinter import Tk
 from tkinter import filedialog
+import numpy
 import pandas
 import random
 import ctypes
@@ -110,8 +111,25 @@ def create_groups(students_sheet, exclusions_sheet):
                 #print(f"Študent {student} je bil dodan v novo skupino!\n")
 
 
-    #print(f"\nKončne skupine: {groups}\n")
-    return groups
+    return organize_groups(groups, subjects)
+
+def organize_groups(groups, students):
+    organized_groups = []
+
+    for group in groups:
+        organized_group = []
+        for class_name, student_list in students.items():
+            added = False
+            for student in group:
+                if student in student_list:
+                    organized_group.append(student)
+                    added = True
+                    break
+            if (added == False):
+                organized_group.append(numpy.nan)
+        organized_groups.append(organized_group)
+
+    return organized_groups
 
 def export_to_excel(groups):
     try:
