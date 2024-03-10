@@ -4,7 +4,7 @@ This program is designed to take a list of students and grouping them so each te
 
 ## Usage
 
-Start the program by running the python file, or running the .exe from /dist.\
+Start the program by running the python file, or running the .exe from /dist, which was created using PyInstaller (python -m PyInstaller -F --onefile studentgroupsbysubjects.py).\
 The program will display a file dialog to select the Excel file to use.
 
 The file should be formatted as follows:
